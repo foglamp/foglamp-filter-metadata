@@ -26,7 +26,7 @@
 					 "the metadata filter.\", " \
 				"\"type\": \"boolean\", " \
 				"\"default\": \"false\" }, " \
-			"\"config\" : {\"description\" : \"Metadata C filter configuration.\", " \
+			"\"config\" : {\"description\" : \"Metadata filter configuration.\", " \
 				"\"type\" : \"JSON\", " \
 				"\"default\" : {" RULES "}} }"
 
@@ -103,17 +103,17 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
 			if (itr->value.IsString())
 			{
 				DatapointValue dpv(string(itr->value.GetString()));
-        		info->metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
+        			info->metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
 			}
 			else if (itr->value.IsDouble())
 			{
 				DatapointValue dpv(itr->value.GetDouble());
-        		info->metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
+        			info->metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
 			}
 			else if (itr->value.IsNumber())
 			{
 				DatapointValue dpv((long) itr->value.GetInt());
-        		info->metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
+        			info->metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
 			}
 			else
 			{
