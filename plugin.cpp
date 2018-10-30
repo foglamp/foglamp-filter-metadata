@@ -15,7 +15,7 @@
 #include <filter.h>
 #include <reading_set.h>
 
-#define RULES ""
+#define METADATA ""
 
 #define FILTER_NAME "metadata"
 
@@ -28,7 +28,7 @@
 				"\"default\": \"false\" }, " \
 			"\"config\" : {\"description\" : \"Metadata filter configuration.\", " \
 				"\"type\" : \"JSON\", " \
-				"\"default\" : {" RULES "}} }"
+				"\"default\" : {" METADATA "}} }"
 
 using namespace std;
 
