@@ -28,7 +28,7 @@
 				"\"default\": \"false\" }, " \
 			"\"config\" : {\"description\" : \"Metadata filter configuration.\", " \
 				"\"type\" : \"JSON\", " \
-				"\"default\" : {" METADATA "}} }"
+				"\"default\" : \"{" METADATA "}\"} }"
 
 using namespace std;
 
