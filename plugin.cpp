@@ -29,8 +29,8 @@
 				"\"default\": \"false\" }, " \
 			"\"config\" : {\"description\" : \"Metadata to add to readings.\", " \
 				"\"type\" : \"JSON\", " \
-				"\"default\" : {" METADATA "}, " \
 				"\"order\" : \"1\", \"displayName\" : \"Metadata to add\"} }"
+
 
 using namespace std;
 
@@ -165,6 +165,57 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 	}
 	
 	filter->m_func(filter->m_data, origReadingSet);
+}
+/*
+ * Plugin reconfigure
+ */
+void plugin_reconfigure(PLUGIN_HANDLE *handle, const string& newConfig)
+{
+	FILTER_INFO *info = (FILTER_INFO *)handle;
+	FogLampFilter* filter = info->handle;
+
+	filter->setConfig(newConfig);
+	// Handle filter configuration
+	std::vector<Datapoint *> metadata;
+	if (filter->getConfig().itemExists("config"))
+	{
+		Document	document;
+		if (document.Parse(filter->getConfig().getValue("config").c_str()).HasParseError())
+		{
+			Logger::getLogger()->error("Unable to parse metadata filter config: '%s'", filter->getConfig().getValue("config").c_str());
+			return;
+		}
+		Logger::getLogger()->info("Metadata filter config=%s", filter->getConfig().getValue("config").c_str());
+		
+		for (Value::ConstMemberIterator itr = document.MemberBegin(); itr != document.MemberEnd(); ++itr)
+		{
+			if (itr->value.IsString())
+			{
+				DatapointValue dpv(string(itr->value.GetString()));
+        			metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
+			}
+			else if (itr->value.IsDouble())
+			{
+				DatapointValue dpv(itr->value.GetDouble());
+        			metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
+			}
+			else if (itr->value.IsNumber())
+			{
+				DatapointValue dpv((long) itr->value.GetInt());
+        			metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
+			}
+			else
+			{
+				Logger::getLogger()->error("Unable to parse value for metadata field '%s', skipping...", itr->name.GetString());
+			}
+		}
+	}
+	std::vector<Datapoint *> tmp;
+	tmp = info->metadata;
+	info->metadata.clear();
+	info->metadata = metadata;
+	for (const auto &it : tmp)
+		delete it;
 }
 
 /**
