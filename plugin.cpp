@@ -15,20 +15,22 @@
 #include <filter.h>
 #include <reading_set.h>
 
-#define METADATA ""
+#define METADATA "\\\"name\\\" : \\\"value\\\""
 
 #define FILTER_NAME "metadata"
 
 #define DEFAULT_CONFIG "{\"plugin\" : { \"description\" : \"Metadata filter plugin\", " \
                        		"\"type\" : \"string\", " \
-				"\"default\" : \"" FILTER_NAME "\" }, " \
+				"\"default\" : \"" FILTER_NAME "\", \"readonly\" : \"true\" }, " \
 			 "\"enable\": {\"description\": \"A switch that can be used to enable or disable execution of " \
 					 "the metadata filter.\", " \
 				"\"type\": \"boolean\", " \
+				"\"displayName\" : \"Enable\", " \
 				"\"default\": \"false\" }, " \
-			"\"config\" : {\"description\" : \"Metadata filter configuration.\", " \
+			"\"config\" : {\"description\" : \"Metadata to add to readings.\", " \
 				"\"type\" : \"JSON\", " \
-				"\"default\" : \"{" METADATA "}\"} }"
+				"\"order\" : \"1\", \"displayName\" : \"Metadata to add\"} }"
+
 
 using namespace std;
 
