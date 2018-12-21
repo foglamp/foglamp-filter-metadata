@@ -29,6 +29,7 @@
 				"\"default\": \"false\" }, " \
 			"\"config\" : {\"description\" : \"Metadata to add to readings.\", " \
 				"\"type\" : \"JSON\", " \
+				"\"default\": \"{" METADATA "}\", "\
 				"\"order\" : \"1\", \"displayName\" : \"Metadata to add\"} }"
 
 
