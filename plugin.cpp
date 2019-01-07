@@ -56,6 +56,7 @@ typedef struct
 {
 	FogLampFilter *handle;
 	std::vector<Datapoint *> metadata;
+	std::string	configCatName;
 } FILTER_INFO;
 
 /**
@@ -89,6 +90,7 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
 	FILTER_INFO *info = new FILTER_INFO;
 	info->handle = new FogLampFilter(FILTER_NAME, *config, outHandle, output);
 	FogLampFilter *filter = info->handle;
+	info->configCatName = config->getName();
 	
 	// Handle filter configuration
 	if (filter->getConfig().itemExists("config"))
@@ -163,6 +165,7 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 		{
 			elem->addDatapoint(new Datapoint(*it));
 		}
+		AssetTracker::getAssetTracker()->addAssetTrackingTuple(info->configCatName, elem->getAssetName(), string("Filter"));
 	}
 	
 	filter->m_func(filter->m_data, origReadingSet);
