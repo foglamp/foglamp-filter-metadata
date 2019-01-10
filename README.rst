@@ -4,6 +4,25 @@ FogLAMP "metadata" C++ Filter plugin
 
 Data transformation plugin to add metadata to readings
 
+Example filter config:
+
+	{
+	"value": {
+		"floor": "Third",
+		"booth": 1,
+		"units": "C",
+		"location": "AirIntake",
+		"factor": 3.2
+		}
+	}	
+
+So the user can specify a set of data points to add to all readings processed by this filter. In above example, it would add "floor", "booth", "units", "location" and "factor" data points to all the readings processed by it.
+
+Example reading processing:
+
+Input:  { "random" : 3 }
+Output: { "random" : 3, "booth" : 1, "units" : "C", "floor" : "Third", "location" : "AirIntake", "factor" : 3.2 }
+
 Build
 -----
 To build FogLAMP "metadata" C++ filter plugin:
