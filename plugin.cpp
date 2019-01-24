@@ -14,6 +14,7 @@
 #include <config_category.h>
 #include <filter.h>
 #include <reading_set.h>
+#include <version.h>
 
 #define METADATA "\\\"name\\\" : \\\"value\\\""
 
@@ -45,7 +46,7 @@ extern "C" {
  */
 static PLUGIN_INFORMATION info = {
 		FILTER_NAME,              // Name
-		"1.0.0",                  // Version
+		VERSION,                  // Version
 		0,                        // Flags
 		PLUGIN_TYPE_FILTER,       // Type
 		"1.0.0",                  // Interface version
