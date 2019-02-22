@@ -14,21 +14,25 @@
 #include <config_category.h>
 #include <filter.h>
 #include <reading_set.h>
+#include <version.h>
 
-#define METADATA ""
+#define METADATA "\\\"name\\\" : \\\"value\\\""
 
 #define FILTER_NAME "metadata"
 
 #define DEFAULT_CONFIG "{\"plugin\" : { \"description\" : \"Metadata filter plugin\", " \
                        		"\"type\" : \"string\", " \
-				"\"default\" : \"" FILTER_NAME "\" }, " \
+				"\"default\" : \"" FILTER_NAME "\", \"readonly\" : \"true\" }, " \
 			 "\"enable\": {\"description\": \"A switch that can be used to enable or disable execution of " \
 					 "the metadata filter.\", " \
 				"\"type\": \"boolean\", " \
+				"\"displayName\" : \"Enabled\", " \
 				"\"default\": \"false\" }, " \
-			"\"config\" : {\"description\" : \"Metadata filter configuration.\", " \
+			"\"config\" : {\"description\" : \"Metadata to add to readings.\", " \
 				"\"type\" : \"JSON\", " \
-				"\"default\" : {" METADATA "}} }"
+				"\"default\": \"{" METADATA "}\", "\
+				"\"order\" : \"1\", \"displayName\" : \"Metadata to add\"} }"
+
 
 using namespace std;
 
@@ -42,7 +46,7 @@ extern "C" {
  */
 static PLUGIN_INFORMATION info = {
 		FILTER_NAME,              // Name
-		"1.0.0",                  // Version
+		VERSION,                  // Version
 		0,                        // Flags
 		PLUGIN_TYPE_FILTER,       // Type
 		"1.0.0",                  // Interface version
@@ -53,6 +57,7 @@ typedef struct
 {
 	FogLampFilter *handle;
 	std::vector<Datapoint *> metadata;
+	std::string	configCatName;
 } FILTER_INFO;
 
 /**
@@ -86,6 +91,7 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
 	FILTER_INFO *info = new FILTER_INFO;
 	info->handle = new FogLampFilter(FILTER_NAME, *config, outHandle, output);
 	FogLampFilter *filter = info->handle;
+	info->configCatName = config->getName();
 	
 	// Handle filter configuration
 	if (filter->getConfig().itemExists("config"))
@@ -160,9 +166,61 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 		{
 			elem->addDatapoint(new Datapoint(*it));
 		}
+		AssetTracker::getAssetTracker()->addAssetTrackingTuple(info->configCatName, elem->getAssetName(), string("Filter"));
 	}
 	
 	filter->m_func(filter->m_data, origReadingSet);
+}
+/*
+ * Plugin reconfigure
+ */
+void plugin_reconfigure(PLUGIN_HANDLE *handle, const string& newConfig)
+{
+	FILTER_INFO *info = (FILTER_INFO *)handle;
+	FogLampFilter* filter = info->handle;
+
+	filter->setConfig(newConfig);
+	// Handle filter configuration
+	std::vector<Datapoint *> metadata;
+	if (filter->getConfig().itemExists("config"))
+	{
+		Document	document;
+		if (document.Parse(filter->getConfig().getValue("config").c_str()).HasParseError())
+		{
+			Logger::getLogger()->error("Unable to parse metadata filter config: '%s'", filter->getConfig().getValue("config").c_str());
+			return;
+		}
+		Logger::getLogger()->info("Metadata filter config=%s", filter->getConfig().getValue("config").c_str());
+		
+		for (Value::ConstMemberIterator itr = document.MemberBegin(); itr != document.MemberEnd(); ++itr)
+		{
+			if (itr->value.IsString())
+			{
+				DatapointValue dpv(string(itr->value.GetString()));
+        			metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
+			}
+			else if (itr->value.IsDouble())
+			{
+				DatapointValue dpv(itr->value.GetDouble());
+        			metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
+			}
+			else if (itr->value.IsNumber())
+			{
+				DatapointValue dpv((long) itr->value.GetInt());
+        			metadata.push_back(new Datapoint(itr->name.GetString(), dpv));
+			}
+			else
+			{
+				Logger::getLogger()->error("Unable to parse value for metadata field '%s', skipping...", itr->name.GetString());
+			}
+		}
+	}
+	std::vector<Datapoint *> tmp;
+	tmp = info->metadata;
+	info->metadata.clear();
+	info->metadata = metadata;
+	for (const auto &it : tmp)
+		delete it;
 }
 
 /**
