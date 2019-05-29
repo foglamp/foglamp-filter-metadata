@@ -1,38 +1,12 @@
-# Prerequisites
-*.d
+# vi
+*.swp
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+# MacOS Finder
+.DS_Store
+._*
 
 # build and packages
 build
 
-# Editor
-.idea
+# IDE
+*.idea
