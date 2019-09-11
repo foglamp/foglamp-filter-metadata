@@ -1,5 +1,5 @@
 /*
- * FogLAMP "metadata" filter plugin.
+ * Fledge "metadata" filter plugin.
  *
  * Copyright (c) 2018 Dianomic Systems
  *
@@ -55,7 +55,7 @@ static PLUGIN_INFORMATION info = {
 
 typedef struct
 {
-	FogLampFilter *handle;
+	FledgeFilter *handle;
 	std::vector<Datapoint *> metadata;
 	std::string	configCatName;
 } FILTER_INFO;
@@ -89,8 +89,8 @@ PLUGIN_HANDLE plugin_init(ConfigCategory* config,
 			  OUTPUT_STREAM output)
 {
 	FILTER_INFO *info = new FILTER_INFO;
-	info->handle = new FogLampFilter(FILTER_NAME, *config, outHandle, output);
-	FogLampFilter *filter = info->handle;
+	info->handle = new FledgeFilter(FILTER_NAME, *config, outHandle, output);
+	FledgeFilter *filter = info->handle;
 	info->configCatName = config->getName();
 	
 	// Handle filter configuration
@@ -145,7 +145,7 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 		   READINGSET *readingSet)
 {
 	FILTER_INFO *info = (FILTER_INFO *) handle;
-	FogLampFilter* filter = info->handle;
+	FledgeFilter* filter = info->handle;
 	
 	if (!filter->isEnabled())
 	{
@@ -177,7 +177,7 @@ void plugin_ingest(PLUGIN_HANDLE *handle,
 void plugin_reconfigure(PLUGIN_HANDLE *handle, const string& newConfig)
 {
 	FILTER_INFO *info = (FILTER_INFO *)handle;
-	FogLampFilter* filter = info->handle;
+	FledgeFilter* filter = info->handle;
 
 	filter->setConfig(newConfig);
 	// Handle filter configuration
